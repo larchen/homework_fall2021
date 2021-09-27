@@ -165,24 +165,24 @@ class RL_Trainer(object):
             train_video_paths: paths which also contain videos for visualization purposes
         """
 
-        if itr == 0 and initial_expertdata:
-            loaded_paths = np.load(initial_expertdata, allow_pickle=True)
-            return loaded_paths, 0, None
-        else:
-            num_transitions_to_sample = batch_size
+        # if itr == 0 and initial_expertdata:
+        #     loaded_paths = np.load(initial_expertdata, allow_pickle=True)
+        #     return loaded_paths, 0, None
+        # else:
+        #     num_transitions_to_sample = batch_size
 
         # TODO collect `batch_size` samples to be used for training
         # HINT1: use sample_trajectories from utils
         # HINT2: you want each of these collected rollouts to be of length self.params['ep_len']
         print("\nCollecting data to be used for training...")
         paths, envsteps_this_batch = utils.sample_trajectories(
-            self.env, collect_policy, num_transitions_to_sample, self.params['ep_len']
+            self.env, collect_policy, batch_size, self.params['ep_len']
         )
 
         # collect more rollouts with the same policy, to be saved as videos in tensorboard
         # note: here, we collect MAX_NVIDEO rollouts, each of length MAX_VIDEO_LEN
         train_video_paths = None
-        if self.log_video:
+        if self.logvideo:
             print('\nCollecting train rollouts to be used for saving videos...')
             ## TODO look in utils and implement sample_n_trajectories
             train_video_paths = utils.sample_n_trajectories(self.env, collect_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True)

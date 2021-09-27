@@ -115,6 +115,7 @@ def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, r
         timesteps_this_batch += get_pathlength(path)
 
     return paths, timesteps_this_batch
+
 def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False, render_mode=('rgb_array')):
     """
         Collect ntraj rollouts.
@@ -124,7 +125,7 @@ def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False, ren
     """
     paths = []
 
-    for _ in range(ntrag):
+    for _ in range(ntraj):
         path = sample_trajectory(env, policy, max_path_length, render=render, render_mode=render_mode)
         paths += [path]
 

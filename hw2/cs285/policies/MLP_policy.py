@@ -94,7 +94,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 
         observation = ptu.from_numpy(observation)
         dist = self(observation)
-        action = dist.rsample()
+        action = dist.sample()
         return ptu.to_numpy(action)
 
     # update/train this policy
@@ -146,7 +146,14 @@ class MLPPolicyPG(MLPPolicy):
         # HINT4: use self.optimizer to optimize the loss. Remember to
             # 'zero_grad' first
 
-        TODO
+        # print(observations.shape, actions.shape, advantages.shape, q_values.shape if q_values is not None else None)
+        dist = self(observations)
+
+        loss = -(dist.log_prob(actions) * advantages).sum()
+
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
 
         if self.nn_baseline:
             ## TODO: update the neural network baseline using the q_values as
@@ -158,7 +165,7 @@ class MLPPolicyPG(MLPPolicy):
             ## HINT2: You will need to convert the targets into a tensor using
                 ## ptu.from_numpy before using it in the loss
 
-            TODO
+            raise NotImplementedError
 
         train_log = {
             'Training Loss': ptu.to_numpy(loss),
