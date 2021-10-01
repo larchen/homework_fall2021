@@ -69,7 +69,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
                 n_layers=self.n_layers,
                 size=self.size,
             )
-            self.baseline.to(device)
+            self.baseline.to(ptu.device)
             self.baseline_optimizer = optim.Adam(
                 self.baseline.parameters(),
                 self.learning_rate,
@@ -159,17 +159,27 @@ class MLPPolicyPG(MLPPolicy):
             ## TODO: update the neural network baseline using the q_values as
             ## targets. The q_values should first be normalized to have a mean
             ## of zero and a standard deviation of one.
+            normalized_q_values = (q_values - np.mean(q_values)) / np.std(q_values)
 
             ## HINT1: use self.baseline_optimizer to optimize the loss used for
                 ## updating the baseline. Remember to 'zero_grad' first
             ## HINT2: You will need to convert the targets into a tensor using
                 ## ptu.from_numpy before using it in the loss
+            
+            baseline_predictions = self.baseline(observations).squeeze()
+            baseline_targets = ptu.from_numpy(normalized_q_values)
 
-            raise NotImplementedError
+            baseline_loss = self.baseline_loss(baseline_predictions, baseline_targets)
+            self.baseline_optimizer.zero_grad()
+            baseline_loss.backward()
+            self.baseline_optimizer.step()
 
         train_log = {
             'Training Loss': ptu.to_numpy(loss),
         }
+
+        if self.nn_baseline:
+            train_log['Baseline Loss'] =  ptu.to_numpy(baseline_loss)
         return train_log
 
     def run_baseline_prediction(self, observations):
