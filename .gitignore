@@ -1,5 +1,7 @@
 *.pyc
 data/
+submit/
+submit*
 *.DS_Store
 *~
 
